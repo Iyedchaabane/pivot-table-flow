@@ -18,7 +18,7 @@ window.drawPivotUI = function(id, dataJson, optionsJson, renderer, aggregator, c
   }
 }
 
-window.drawChartPivotUI = function(id, dataJson, cols, rows, disabledRenderers, renderer, aggregator, column, disabled, noui) {
+window.drawChartPivotUI = function(id, dataJson, cols, rows, disabledRenderers, renderer, aggregator, customAggregators, column, disabled, noui) {
   var renderers = $.extend(
      $.pivotUtilities.renderers,
      $.pivotUtilities.c3_renderers,
@@ -27,7 +27,12 @@ window.drawChartPivotUI = function(id, dataJson, cols, rows, disabledRenderers, 
   let dj = $.parseJSON(dataJson);
   const cs = cols.split(",");
   const rs = rows.split(",");
-  $("#"+id).pivotUI(dj, { cols: cs, rows: rs, renderers: renderers }, true);
+  const agg = getCustomAggregators(column, customAggregators);
+  if (Object.keys(agg).length === 0) {
+    $("#"+id).pivotUI(dj, { cols: cs, rows: rs, renderers: renderers}, true);
+  } else {
+    $("#"+id).pivotUI(dj, { cols: cs, rows: rs, renderers: renderers, aggregators: agg }, true);
+  }
   setupPivotPopupDragging(id);
   if (renderer) {
     $("#"+id).find(".pvtRenderer").val(renderer);
@@ -116,5 +121,42 @@ function dragPivotPopup(elmnt) {
     // stop moving when mouse button is released:
     document.onmouseup = null;
     document.onmousemove = null;
+  }
+}
+
+function getCustomAggregators(column, customAggregatorsMap) {
+  var tpl = $.pivotUtilities.aggregatorTemplates;
+  var customAggregators = {};
+  var keyValuePairs = customAggregatorsMap ? customAggregatorsMap.split(',') : null;
+  if (keyValuePairs) {
+    keyValuePairs.forEach(function (pair) {
+      var keyValue = pair.trim().split(':');
+      if (keyValue.length === 2) {
+        var name = keyValue[0].trim();
+        var funcName = keyValue[1].trim();
+
+        if (tpl[funcName]) {
+          customAggregators[name] = createAggregatorFunction(tpl[funcName], column);
+        } else {
+          console.error("Function not supported:", funcName);
+        }
+      } else {
+        console.error("Invalid key-value pair:", pair);
+      }
+    });
+  } else {
+    return customAggregators ;
+  }
+
+  return customAggregators;
+}
+
+function createAggregatorFunction(aggregatorTemplate, column) {
+  if (typeof aggregatorTemplate === "function") {
+    return () => aggregatorTemplate()([column]);
+  } else if (typeof aggregatorTemplate === "object" && typeof aggregatorTemplate.call === "function") {
+    return () => aggregatorTemplate.call(null, [])([column]);
+  } else {
+    console.error("Invalid aggregator function:", aggregatorTemplate);
   }
 }

@@ -100,6 +100,24 @@ public class PivotTable extends Composite<Div> {
     }
 
     /**
+     * Utility helpers for valid renderer strings.
+     */
+    public final class FunctionName {
+        public static final String COUNT = "count";
+        public static final String COUNT_UNIQUE_VALUES = "count";
+        public static final String LIST_UNIQUE_VALUES = "listUnique";
+        public static final String SUM = "sum";
+        public static final String INTEGER_SUM = "sum";
+        public static final String AVERAGE = "average";
+        public static final String MEDIAN = "median";
+        public static final String SUM_OVER_SUM = "sumOverSum";
+        public static final String MINIMUM = "min";
+        public static final String MAXIMUM = "max";
+        public static final String FIRST = "first";
+        public static final String LAST = "last";
+    }
+
+    /**
      * Options for PivotTable
      */
     public static class PivotOptions implements Serializable {
@@ -108,6 +126,7 @@ public class PivotTable extends Composite<Div> {
         List<String> disabledRerenders;
         String renderer;
         String aggregator;
+        Map<String,String> customAggregators;
         String column;
         boolean charts;
         boolean fieldsDisabled;
@@ -171,6 +190,21 @@ public class PivotTable extends Composite<Div> {
          */
         public void setAggregator(String aggregator, String column) {
             this.aggregator = aggregator;
+            this.column = column;
+        }
+
+        /**
+         * set the personnel aggregation
+         *
+         * @see Aggregator
+         *
+         * @param aggregator
+         *            The aggregator name.
+         * @param column
+         *            The column name. Can be null.
+         */
+        public void setCustomAggregators(Map<String,String> aggregator , String column) {
+            this.customAggregators= aggregator;
             this.column = column;
         }
 
@@ -397,10 +431,15 @@ public class PivotTable extends Composite<Div> {
                     ? options.disabledRerenders.stream()
                             .collect(Collectors.joining(","))
                     : null;
+            String customAggregators = options.customAggregators != null
+                    ? options.customAggregators.entrySet().stream()
+                    .map(entry -> entry.getKey() + ":" + entry.getValue())
+                    .collect(Collectors.joining(","))
+                    : null;
             event.getUI().getPage().executeJs(
-                    "window.drawChartPivotUI($0, $1, $2, $3, $4, $5, $6, $7, $8, $9);",
+                    "window.drawChartPivotUI($0, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10);",
                     id, dataJson, cols, rows, disabledRenderers,
-                    options.renderer, options.aggregator, options.column,
+                    options.renderer, options.aggregator, customAggregators, options.column,
                     options.fieldsDisabled, pivotMode != PivotMode.INTERACTIVE);
         } else {
             event.getUI().getPage().executeJs(

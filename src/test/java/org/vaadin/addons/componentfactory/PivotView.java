@@ -1,5 +1,8 @@
 package org.vaadin.addons.componentfactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.vaadin.addons.componentfactory.PivotTable.PivotData;
 import org.vaadin.addons.componentfactory.PivotTable.PivotMode;
 import org.vaadin.addons.componentfactory.PivotTable.PivotOptions;
@@ -31,6 +34,12 @@ public class PivotView extends Div {
         pivotOptions.setRows("color");
         pivotOptions.setCols("shape");
         pivotOptions.setCharts(true);
+
+        Map<String, String> customAggregators = new HashMap<>();
+        customAggregators.put(PivotTable.Aggregator.MAXIMUM, PivotTable.FunctionName.MAXIMUM);
+        customAggregators.put(PivotTable.Aggregator.LIST_UNIQUE_VALUES, PivotTable.FunctionName.LIST_UNIQUE_VALUES);
+        customAggregators.put(PivotTable.Aggregator.AVERAGE, PivotTable.FunctionName.AVERAGE);
+        pivotOptions.setCustomAggregators(customAggregators,"Age");
 
         PivotTable table = new PivotTable(pivotData, pivotOptions,
                 PivotMode.INTERACTIVE);
