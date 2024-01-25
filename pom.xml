@@ -9,6 +9,12 @@
     <version>2.0.0-Y0</version>
     <name>PivotTable for Vaadin</name>
     <description>Flow integration of pivottable.js</description>
+    <distributionManagement>
+        <repository>
+            <id>local-repo</id>
+            <url>file:///home/ichaabane/PUBLISH</url>
+        </repository>
+    </distributionManagement>
 
     <properties>
         <vaadin.version>23.3.0</vaadin.version>
