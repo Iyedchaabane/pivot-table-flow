@@ -1,0 +1,18 @@
+{
+  "productionMode": false,
+  "useDeprecatedV14Bootstrapping": false,
+  "eagerServerLoad": false,
+  "npmFolder": "/home/dsebai/pivot-table-flow",
+  "node.version": "v18.12.1",
+  "node.download.root": "https://nodejs.org/dist/",
+  "generatedFolder": "/home/dsebai/pivot-table-flow/target/frontend",
+  "frontendFolder": "/home/dsebai/pivot-table-flow/frontend",
+  "connect.javaSourceFolder": "/home/dsebai/pivot-table-flow/src/main/java",
+  "javaResourceFolder": "/home/dsebai/pivot-table-flow/src/main/resources",
+  "connect.applicationProperties": "/home/dsebai/pivot-table-flow/src/main/resources/application.properties",
+  "connect.openApiFile": "/home/dsebai/pivot-table-flow/target/generated-resources/openapi.json",
+  "project.frontend.generated": "/home/dsebai/pivot-table-flow/frontend/generated",
+  "pnpm.enable": true,
+  "require.home.node": true,
+  "build.folder": "target"
+}

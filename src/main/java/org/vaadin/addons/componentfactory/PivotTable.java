@@ -118,6 +118,28 @@ public class PivotTable extends Composite<Div> {
     }
 
     /**
+     * customsAggregator class
+     */
+
+    public  static class customAgg implements Serializable {
+        String aggregator ;
+        String label;
+        String column;
+
+        public customAgg (String aggregator,String label, String column){
+            this.aggregator=aggregator;
+            this.label=label;
+            this.column=column;
+
+        }
+        @Override
+        public String toString() {
+            return "(" + aggregator + ", " + label + ", " + column + ")";
+        }
+    }
+
+
+    /**
      * Options for PivotTable
      */
     public static class PivotOptions implements Serializable {
@@ -126,7 +148,7 @@ public class PivotTable extends Composite<Div> {
         List<String> disabledRerenders;
         String renderer;
         String aggregator;
-        Map<String,String> customAggregators;
+        List<customAgg> customAggregators;
         String column;
         boolean charts;
         boolean fieldsDisabled;
@@ -136,7 +158,7 @@ public class PivotTable extends Composite<Div> {
 
         /**
          * Set default columns for the pivot
-         * 
+         *
          * @param cols
          *            Column identifiers
          */
@@ -146,7 +168,7 @@ public class PivotTable extends Composite<Div> {
 
         /**
          * Set default rows for the pivot.
-         * 
+         *
          * @param rows
          *            Row identifiers
          */
@@ -158,7 +180,7 @@ public class PivotTable extends Composite<Div> {
          * Set disabled renderers.
          *
          * @see Renderer
-         * 
+         *
          * @param renderers
          *            Renderers to disable.
          */
@@ -196,21 +218,19 @@ public class PivotTable extends Composite<Div> {
         /**
          * set the personnel aggregation
          *
-         * @see Aggregator
+         * @see customAgg
          *
-         * @param aggregator
-         *            The aggregator name.
-         * @param column
-         *            The column name. Can be null.
+         * @param aggregators
+         *            The aggregators list.
+
          */
-        public void setCustomAggregators(Map<String,String> aggregator , String column) {
-            this.customAggregators= aggregator;
-            this.column = column;
+        public void setCustomAggregators(List<customAgg> aggregators) {
+            this.customAggregators= aggregators;
         }
 
         /**
          * When false fields cannot be rearranged.
-         * 
+         *
          * @param fieldsDisabled
          *            Boolean value.
          */
@@ -220,7 +240,7 @@ public class PivotTable extends Composite<Div> {
 
         /**
          * Enable embbeded charts.
-         * 
+         *
          * @param charts
          *            true for charts enabled.
          */
@@ -251,7 +271,7 @@ public class PivotTable extends Composite<Div> {
 
         /**
          * Add column.
-         * 
+         *
          * @param name
          *            Name of the column, unique.
          * @param type
@@ -270,7 +290,7 @@ public class PivotTable extends Composite<Div> {
 
         /**
          * Add row from the map.
-         * 
+         *
          * @param row
          *            Map of column key data object pairs.
          */
@@ -350,7 +370,7 @@ public class PivotTable extends Composite<Div> {
 
         /**
          * Add a row of data objects.
-         * 
+         *
          * @param datas
          *            Data objects in the same order as columns were added.
          */
@@ -385,7 +405,7 @@ public class PivotTable extends Composite<Div> {
     /**
      * Create PivotTable using PivotMode.NONINTERACTIVE and given data and
      * options.
-     * 
+     *
      * @param pivotData
      *            PivotData
      * @param pivotOptions
@@ -397,7 +417,7 @@ public class PivotTable extends Composite<Div> {
 
     /**
      * Create PivotTable using given data and options.
-     * 
+     *
      * @param pivotData
      *            PivotData
      * @param pivotOptions
@@ -407,7 +427,7 @@ public class PivotTable extends Composite<Div> {
      *            interactive UI.
      */
     public PivotTable(AbstractPivotData pivotData, PivotOptions pivotOptions,
-            PivotMode mode) {
+                      PivotMode mode) {
         this.pivotMode = mode;
         id = randomId(10);
         setId(id);
@@ -420,6 +440,8 @@ public class PivotTable extends Composite<Div> {
     @Override
     protected void onAttach(AttachEvent event) {
         super.onAttach(event);
+        String customAggregators = options.customAggregators != null ? options.customAggregators.toString() : null;
+
         if (options.charts) {
             String cols = options.cols != null
                     ? options.cols.stream().collect(Collectors.joining(","))
@@ -429,22 +451,17 @@ public class PivotTable extends Composite<Div> {
                     : null;
             String disabledRenderers = options.disabledRerenders != null
                     ? options.disabledRerenders.stream()
-                            .collect(Collectors.joining(","))
-                    : null;
-            String customAggregators = options.customAggregators != null
-                    ? options.customAggregators.entrySet().stream()
-                    .map(entry -> entry.getKey() + ":" + entry.getValue())
                     .collect(Collectors.joining(","))
                     : null;
             event.getUI().getPage().executeJs(
-                    "window.drawChartPivotUI($0, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10);",
+                    "window.drawChartPivotUI($0, $1, $2, $3, $4, $5, $6, $7, $8, $9,$10);",
                     id, dataJson, cols, rows, disabledRenderers,
-                    options.renderer, options.aggregator, customAggregators, options.column,
+                    options.renderer, options.aggregator,customAggregators, options.column,
                     options.fieldsDisabled, pivotMode != PivotMode.INTERACTIVE);
         } else {
             event.getUI().getPage().executeJs(
-                    "window.drawPivotUI($0, $1, $2, $3, $4, $5, $6, $7);", id,
-                    dataJson, optionsJson, options.renderer, options.aggregator,
+                    "window.drawPivotUI($0, $1, $2, $3, $4, $5, $6, $7, $8);", id,
+                    dataJson, optionsJson, options.renderer, options.aggregator,customAggregators,
                     options.column, options.fieldsDisabled,
                     pivotMode != PivotMode.INTERACTIVE);
         }
