@@ -100,7 +100,7 @@ public class PivotTable extends Composite<Div> {
     }
 
     /**
-     * Utility helpers for valid renderer strings.
+     * Class defining constants for function names.
      */
     public final class FunctionName {
         public static final String COUNT = "count";
@@ -120,7 +120,6 @@ public class PivotTable extends Composite<Div> {
     /**
      * customsAggregator class
      */
-
     public  static class customAgg implements Serializable {
         String aggregator ;
         String label;
@@ -130,7 +129,6 @@ public class PivotTable extends Composite<Div> {
             this.aggregator=aggregator;
             this.label=label;
             this.column=column;
-
         }
         @Override
         public String toString() {

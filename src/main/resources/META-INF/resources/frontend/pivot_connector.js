@@ -129,24 +129,24 @@ function dragPivotPopup(elmnt) {
   }
 }
 
-function getCustomAggregators(customAggregatorsMap) {
+function getCustomAggregators(customAggregatorsList) {
   var tpl = $.pivotUtilities.aggregatorTemplates;
   var customAggregators = {};
-  var keyValuePairs = customAggregatorsMap ? customAggregatorsMap.substring(2, customAggregatorsMap.length - 2).split("), (") : null;
-  if (keyValuePairs) {
-    keyValuePairs.forEach(function (pair) {
-      var keyValue = pair.split(',');
-      if (keyValue.length === 3) {
-        var funcName = keyValue[0].trim();
-        var label = keyValue[1].trim();
-        var column = keyValue[2].trim();
+  var Objects = customAggregatorsList ? customAggregatorsList.substring(2, customAggregatorsList.length - 2).split("), (") : null;
+  if (Objects) {
+    Objects.forEach(function (object) {
+      var Values = object.split(',');
+      if (Values.length === 3) {
+        var funcName = Values[0].trim();
+        var label = Values[1].trim();
+        var column = Values[2].trim();
         if (tpl[funcName]) {
           customAggregators[label] = createAggregatorFunction(tpl[funcName], column);
         } else {
           console.error("Function not supported:", funcName);
         }
       } else {
-        console.error("Invalid key-value pair:", pair);
+        console.error("Invalid object structure:", object);
       }
     });
   } else {
