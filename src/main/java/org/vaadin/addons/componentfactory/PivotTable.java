@@ -103,10 +103,8 @@ public class PivotTable extends Composite<Div> {
      * Utility helpers for valid renderer strings.
      */
     public final class FunctionName {
-        public static final String COUNT = "count";
         public static final String COUNT_UNIQUE_VALUES = "count";
         public static final String LIST_UNIQUE_VALUES = "listUnique";
-        public static final String SUM = "sum";
         public static final String INTEGER_SUM = "sum";
         public static final String AVERAGE = "average";
         public static final String MEDIAN = "median";
@@ -121,15 +119,15 @@ public class PivotTable extends Composite<Div> {
      * customsAggregator class
      */
 
-    public  static class customAgg implements Serializable {
-        String aggregator ;
+    public static class CustomAggregator implements Serializable {
+        String aggregator;
         String label;
         String column;
 
-        public customAgg (String aggregator,String label, String column){
-            this.aggregator=aggregator;
-            this.label=label;
-            this.column=column;
+        public CustomAggregator(String aggregator,String label, String column){
+            this.aggregator = aggregator;
+            this.label = label;
+            this.column = column;
 
         }
         @Override
@@ -148,7 +146,7 @@ public class PivotTable extends Composite<Div> {
         List<String> disabledRerenders;
         String renderer;
         String aggregator;
-        List<customAgg> customAggregators;
+        List<CustomAggregator> customAggregators;
         String column;
         boolean charts;
         boolean fieldsDisabled;
@@ -218,14 +216,14 @@ public class PivotTable extends Composite<Div> {
         /**
          * set the personnel aggregation
          *
-         * @see customAgg
+         * @see CustomAggregator
          *
          * @param aggregators
          *            The aggregators list.
 
          */
-        public void setCustomAggregators(List<customAgg> aggregators) {
-            this.customAggregators= aggregators;
+        public void setCustomAggregators(List<CustomAggregator> aggregators) {
+            this.customAggregators = aggregators;
         }
 
         /**
