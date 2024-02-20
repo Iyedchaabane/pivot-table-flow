@@ -1,10 +1,13 @@
 //import $ from "jquery";
 //import "pivottable/dist/pivot.min.js";
 
-window.drawPivotUI = function(id, dataJson, optionsJson, renderer, aggregator, column, disabled, noui) {
+window.drawPivotUI = function(id, dataJson, optionsJson, renderer, aggregator,CustomAggregators, column, disabled, noui) {
   let dj = $.parseJSON(dataJson);
   let oj = $.parseJSON(optionsJson);
-  $("#"+id).pivotUI(dj, oj);	
+  if (CustomAggregators){
+    oj.aggregators = getCustomAggregators(CustomAggregators)
+  }
+  $("#"+id).pivotUI(dj, oj);
   setupPivotPopupDragging();
   if (disabled) {
     disableFields(id);
@@ -12,13 +15,15 @@ window.drawPivotUI = function(id, dataJson, optionsJson, renderer, aggregator, c
   if (renderer) {
     $("#"+id).find(".pvtRenderer").val(renderer);
   }
-  setAggregator(id, aggregator, column);
+  if (!CustomAggregators){
+    setAggregator(id, aggregator, column);
+  }
   if (noui) {
     disableUI(id);
   }
 }
 
-window.drawChartPivotUI = function(id, dataJson, cols, rows, disabledRenderers, renderer, aggregator, column, disabled, noui) {
+window.drawChartPivotUI = function(id, dataJson, cols, rows, disabledRenderers, renderer, aggregator, customAggregators, column, disabled, noui) {
   var renderers = $.extend(
      $.pivotUtilities.renderers,
      $.pivotUtilities.c3_renderers,
@@ -27,7 +32,12 @@ window.drawChartPivotUI = function(id, dataJson, cols, rows, disabledRenderers, 
   let dj = $.parseJSON(dataJson);
   const cs = cols.split(",");
   const rs = rows.split(",");
-  $("#"+id).pivotUI(dj, { cols: cs, rows: rs, renderers: renderers }, true);
+  const agg = getCustomAggregators(customAggregators);
+  if (Object.keys(agg).length === 0) {
+    $("#"+id).pivotUI(dj, { cols: cs, rows: rs, renderers: renderers}, true);
+  } else {
+    $("#"+id).pivotUI(dj, { cols: cs, rows: rs, renderers: renderers, aggregators: agg }, true);
+  }
   setupPivotPopupDragging(id);
   if (renderer) {
     $("#"+id).find(".pvtRenderer").val(renderer);
@@ -45,19 +55,19 @@ window.drawChartPivotUI = function(id, dataJson, cols, rows, disabledRenderers, 
 }
 
 function disableUI(id) {
-  $("#"+id).find(".pvtUiCell").css("display","none");	
+  $("#"+id).find(".pvtUiCell").css("display","none");
 }
 
 function setAggregator(id, aggregator, column) {
  if (aggregator) {
     $("#"+id).find(".pvtAggregator").val(aggregator);
     if (column) {
-      setTimeout(() => { 
+      setTimeout(() => {
         $("#"+id).find(".pvtAttrDropdown").val(column);
         $("#"+id).find(".pvtAttrDropdown").trigger("change");
         }, 100);
 	}
-  }	
+  }
 }
 
 function disableRenderers(id, disabledRenderers) {
@@ -80,7 +90,7 @@ function setupPivotPopupDragging(id) {
     const elements = $("#"+id).find(".pvtFilterBox");
     for (let i=0;i<elements.length;i++) {
 		dragPivotPopup(elements[i]);
-	}	
+	}
 }
 
 function dragPivotPopup(elmnt) {
@@ -116,5 +126,42 @@ function dragPivotPopup(elmnt) {
     // stop moving when mouse button is released:
     document.onmouseup = null;
     document.onmousemove = null;
+  }
+}
+
+function getCustomAggregators(customAggregatorsList) {
+  var tpl = $.pivotUtilities.aggregatorTemplates;
+  var customAggregators = {};
+  var Objects = customAggregatorsList ? customAggregatorsList.substring(2, customAggregatorsList.length - 2).split("), (") : null;
+  if (Objects) {
+    Objects.forEach(function (object) {
+      var Values = object.split(',');
+      if (Values.length === 3) {
+        var funcName = Values[0].trim();
+        var label = Values[1].trim();
+        var column = Values[2].trim();
+        if (tpl[funcName]) {
+          customAggregators[label] = createAggregatorFunction(tpl[funcName], column);
+        } else {
+          console.error("Function not supported:", funcName);
+        }
+      } else {
+        console.error("Invalid object structure:", object);
+      }
+    });
+  } else {
+    return customAggregators ;
+  }
+
+  return customAggregators;
+}
+
+function createAggregatorFunction(aggregatorTemplate, column) {
+  if (typeof aggregatorTemplate === "function") {
+    return () => aggregatorTemplate()([column]);
+  } else if (typeof aggregatorTemplate === "object" && typeof aggregatorTemplate.call === "function") {
+    return () => aggregatorTemplate.call(null, [])([column]);
+  } else {
+    console.error("Invalid aggregator function:", aggregatorTemplate);
   }
 }
