@@ -6,7 +6,7 @@ import java.util.List;
 import org.vaadin.addons.componentfactory.PivotTable.PivotData;
 import org.vaadin.addons.componentfactory.PivotTable.PivotMode;
 import org.vaadin.addons.componentfactory.PivotTable.PivotOptions;
-import org.vaadin.addons.componentfactory.PivotTable.customAgg;
+import org.vaadin.addons.componentfactory.PivotTable.CustomAggregator;
 import org.vaadin.addons.componentfactory.PivotTable.Renderer;
 
 import com.vaadin.flow.component.UI;
@@ -37,11 +37,13 @@ public class PivotView extends Div {
         pivotOptions.setCols("shape");
         pivotOptions.setCharts(false);
 
-        List<customAgg> customAggregators = new ArrayList<>();
-        customAgg c1 = new customAgg(PivotTable.FunctionName.MAXIMUM,"Number of MPs","size");
-        customAgg c2 = new customAgg(PivotTable.FunctionName.AVERAGE,"Average weight of MPs","weight");
+        List<CustomAggregator> customAggregators = new ArrayList<>();
+        CustomAggregator c1 = new CustomAggregator(PivotTable.FunctionName.MAXIMUM,"Number of MPs","size");
+        CustomAggregator c2 = new CustomAggregator(PivotTable.FunctionName.AVERAGE,"Average weight of MPs","weight");
+        CustomAggregator c3 = new CustomAggregator(PivotTable.FunctionName.INTEGER_SUM,"Integer SUM","size");
         customAggregators.add(c1);
         customAggregators.add(c2);
+        customAggregators.add(c3);
         pivotOptions.setCustomAggregators(customAggregators);
         pivotOptions.setAggregator("Average", "size");
 
